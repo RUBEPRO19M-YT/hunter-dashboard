@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Hunter - Registro de Aspirantes</title>
+    <style>
+        body { background: #0f172a; color: #f8fafc; font-family: sans-serif; text-align: center; padding-top: 50px; }
+        .card { background: #1e293b; display: inline-block; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        a.btn { background: #5865F2; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Examen de Aspirantes - Hunter</h1>
+        <% if (!user) { %>
+            <p>Inicia sesión con Discord para obtener tu número de dorsal oficial.</p>
+            <a href="/auth/discord" class="btn">Entrar con Discord</a>
+        <% } else { %>
+            <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png" width="80" style="border-radius:50%">
+            <h2>¡Hola, <%= user.username %>!</h2>
+            <% if (aspirant) { %>
+                <p>Tu número de aspirante asignado es: <strong style="color: #38bdf8; font-size: 24px;">#<%= aspirant.number %></strong></p>
+            <% } %>
+            <% if (isAdmin) { %>
+                <br><a href="/admin" class="btn" style="background: #e11d48;">Panel de Administrador</a>
+            <% } %>
+        <% } %>
+    </div>
+</body>
+</html>
