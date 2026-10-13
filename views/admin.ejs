@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Admin - Haunter</title>
+    <style>
+        body { background: #0f172a; color: #f8fafc; font-family: sans-serif; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; background: #1e293b; margin-top: 20px; }
+        th, td { padding: 12px; border-bottom: 1px solid #334155; text-align: center; }
+        input, button { padding: 6px; border-radius: 4px; border: none; }
+        button { background: #0284c7; color: white; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Gestión de Aspirantes - Haunter</h1>
+    <a href="/" style="color: #38bdf8;">← Volver al inicio</a>
+    <table>
+        <tr>
+            <th>Discord ID</th>
+            <th>Usuario</th>
+            <th>Número Actual</th>
+            <th>Acciones</th>
+        </tr>
+        <% aspirants.forEach(asp => { %>
+        <tr>
+            <td><%= asp.discordId %></td>
+            <td><%= asp.username %></td>
+            <td>
+                <form action="/admin/update" method="POST" style="display:inline;">
+                    <input type="hidden" name="discordId" value="<%= asp.discordId %>">
+                    <input type="number" name="newNumber" value="<%= asp.number %>" style="width: 70px;">
+                    <button type="submit">Cambiar</button>
+                </form>
+            </td>
+            <td>
+                <form action="/admin/update" method="POST" style="display:inline;">
+                    <input type="hidden" name="discordId" value="<%= asp.discordId %>">
+                    <input type="hidden" name="action" value="delete">
+                    <button type="submit" style="background: #e11d48;">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        <% }) %>
+    </table>
+</body>
+</html>
