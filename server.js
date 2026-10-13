@@ -126,22 +126,24 @@ app.get('/api/verify/:discordId', async (req, res) => {
     res.json({ allowed: true, number: aspirant.number, username: aspirant.username });
 });
 
-// Endpoint para que el Launcher verifique al usuario de forma segura
-app.post('/api/launcher-login', async (req, res) => {
-    const { discordId } = req.body;
+// Endpoint para que el Launcher detecte la sesión activa del usuario logueado en la web
+app.get('/api/me', async (req, res) => {
+    if (!req.session.user) {
+        return res.json({ success: false, message: 'No hay sesión activa' });
+    }
     try {
-        const aspirant = await Aspirant.findOne({ discordId });
+        const aspirant = await Aspirant.findOne({ discordId: req.session.user.id });
         if (!aspirant || aspirant.banned) {
-            return res.json({ success: false, message: 'No estás registrado o estás baneado.' });
+            return res.json({ success: false, message: 'Aspirante no registrado o baneado' });
         }
-        res.json({ 
-            success: true, 
-            user: { 
-                discordId: aspirant.discordId, 
-                username: aspirant.username, 
-                avatar: aspirant.avatar, 
-                number: aspirant.number 
-            } 
+        res.json({
+            success: true,
+            user: {
+                discordId: aspirant.discordId,
+                username: aspirant.username,
+                avatar: aspirant.avatar,
+                number: aspirant.number
+            }
         });
     } catch (err) {
         res.json({ success: false, message: 'Error interno en el servidor.' });
