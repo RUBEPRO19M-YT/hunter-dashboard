@@ -27,6 +27,10 @@
             "20230612.114412"
         ],
         "jvm": [
+            "--add-opens=java.base/java.lang.invoke=ALL-UNNAMED",
+            "--add-opens=java.base/java.lang=ALL-UNNAMED",
+            "--add-opens=java.base/java.util=ALL-UNNAMED",
+            "--add-exports=java.base/sun.security.util=ALL-UNNAMED",
             "-Djava.net.preferIPv6Addresses=system",
             "-DignoreList=bootstraplauncher,securejarhandler,asm-commons,asm-util,asm-analysis,asm-tree,asm,JarJarFileSystems,client-extra,fmlcore,javafmllanguage,lowcodelanguage,mclanguage,forge-,${version_name}.jar",
             "-DmergeModules=jna-5.10.0.jar,jna-platform-5.10.0.jar",
