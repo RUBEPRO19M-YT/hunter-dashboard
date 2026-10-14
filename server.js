@@ -139,22 +139,22 @@ app.get('/api/verify/:discordId', async (req, res) => {
 });
 
 // ==========================================
-// 3. ENDPOINT PARA QUE EL LAUNCHER RECISE LOS MODS
+// 3. ENDPOINT PARA QUE EL LAUNCHER RECISE LOS 
 // ==========================================
 app.get('/api/mods', (req, res) => {
     const baseUrl = `${req.protocol}://${req.get('host')}/public/mods`;
     res.json({
         version: "1.6.7",
         mods: [
-            { name: "simple-voice-chat-forge-1.20.1.jar", url: `${baseUrl}/simple-voice-chat-forge-1.20.1.jar` },
+            { name: "simple-voice-chat-forge-1.20.1.jar", url: `${baseUrl}/voicechat-forge-1.20.1-2.6.24.jar` },
             { name: "create-1.20.1.jar", url: `${baseUrl}/create-1.20.1.jar` },
-            { name: "epicfight-1.20.1.jar", url: `${baseUrl}/epicfight-1.20.1.jar` },
-            { name: "tablist-1.20.1.jar", url: `${baseUrl}/tablist-1.20.1.jar` },
+            { name: "epicfight-1.20.1.jar", url: `${baseUrl}/epic-fight-20.14.17-mc1.20.1-forge.jar` },
+            { name: "tablist-1.20.1.jar", url: `${baseUrl}/customtablist-forge-1.20.1.jar` },
             { name: "architectury-9.2.14-forge.jar", url: `${baseUrl}/architectury-9.2.14-forge.jar` },
             { name: "mcw-furniture-3.4.1-mc1.20.1forge.jar", url: `${baseUrl}/mcw-furniture-3.4.1-mc1.20.1forge.jar` },
             { name: "camera-forge-1.20.1-1.0.20.jar", url: `${baseUrl}/camera-forge-1.20.1-1.0.20.jar` },
             { name: "embeddium-0.3.31+mc1.20.1.jar", url: `${baseUrl}/embeddium-0.3.31+mc1.20.1.jar` },
-            { name: "ferritecore-6.0.1-forge.jar", url: `${baseUrl}/ferritecore-6.0.1-forge.jar` },
+            { name: "ferritecore-6.0.1-forge.jar", url: `${baseUrl}/ferritecore-6.0.1-forge.jar` }, // Asegúrate de si este es el de ferritecore o cámbialo por el real
             { name: "ImmediatelyFast-Forge-1.5.5+1.20.4.jar", url: `${baseUrl}/ImmediatelyFast-Forge-1.5.5+1.20.4.jar` },
             { name: "worldedit-mod-7.2.15.jar", url: `${baseUrl}/worldedit-mod-7.2.15.jar` },
             { name: "modernfix-forge-5.27.88+mc1.20.1.jar", url: `${baseUrl}/modernfix-forge-5.27.88+mc1.20.1.jar` }
