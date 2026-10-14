@@ -10,9 +10,7 @@
     "type": "release",
     "mainClass": "cpw.mods.bootstraplauncher.BootstrapLauncher",
     "inheritsFrom": "1.20.1",
-    "logging": {
-        
-    },
+    "logging": {},
     "arguments": {
         "game": [
             "--launchTarget",
@@ -31,14 +29,6 @@
             "--add-opens=java.base/java.lang=ALL-UNNAMED",
             "--add-opens=java.base/java.util=ALL-UNNAMED",
             "--add-exports=java.base/sun.security.util=ALL-UNNAMED",
-            "-Djava.net.preferIPv6Addresses=system",
-            "-DignoreList=bootstraplauncher,securejarhandler,asm-commons,asm-util,asm-analysis,asm-tree,asm,JarJarFileSystems,client-extra,fmlcore,javafmllanguage,lowcodelanguage,mclanguage,forge-,${version_name}.jar",
-            "-DmergeModules=jna-5.10.0.jar,jna-platform-5.10.0.jar",
-            "-DlibraryDirectory=${library_directory}",
-            "-p",
-            "${library_directory}/cpw/mods/bootstraplauncher/1.1.2/bootstraplauncher-1.1.2.jar${classpath_separator}${library_directory}/cpw/mods/securejarhandler/2.1.10/securejarhandler-2.1.10.jar${classpath_separator}${library_directory}/org/ow2/asm/asm-commons/9.8/asm-commons-9.8.jar${classpath_separator}${library_directory}/org/ow2/asm/asm-util/9.8/asm-util-9.8.jar${classpath_separator}${library_directory}/org/ow2/asm/asm-analysis/9.8/asm-analysis-9.8.jar${classpath_separator}${library_directory}/org/ow2/asm/asm-tree/9.8/asm-tree-9.8.jar${classpath_separator}${library_directory}/org/ow2/asm/asm/9.8/asm-9.8.jar${classpath_separator}${library_directory}/net/minecraftforge/JarJarFileSystems/0.3.19/JarJarFileSystems-0.3.19.jar",
-            "--add-modules",
-            "ALL-MODULE-PATH",
             "--add-opens",
             "java.base/java.util.jar=cpw.mods.securejarhandler",
             "--add-opens",
@@ -46,7 +36,15 @@
             "--add-exports",
             "java.base/sun.security.util=cpw.mods.securejarhandler",
             "--add-exports",
-            "jdk.naming.dns/com.sun.jndi.dns=java.naming"
+            "jdk.naming.dns/com.sun.jndi.dns=java.naming",
+            "-Djava.net.preferIPv6Addresses=system",
+            "-DignoreList=bootstraplauncher,securejarhandler,asm-commons,asm-util,asm-analysis,asm-tree,asm,JarJarFileSystems,client-extra,fmlcore,javafmllanguage,lowcodelanguage,mclanguage,forge-,${version_name}.jar",
+            "-DmergeModules=jna-5.10.0.jar,jna-platform-5.10.0.jar",
+            "-DlibraryDirectory=${library_directory}",
+            "-p",
+            "${library_directory}/cpw/mods/bootstraplauncher/1.1.2/bootstraplauncher-1.1.2.jar${classpath_separator}${library_directory}/cpw/mods/securejarhandler/2.1.10/securejarhandler-2.1.10.jar${classpath_separator}${library_directory}/org/ow2/asm/asm-commons/9.8/asm-commons-9.8.jar${classpath_separator}${library_directory}/org/ow2/asm/asm-util/9.8/asm-util-9.8.jar${classpath_separator}${library_directory}/org/ow2/asm/asm-analysis/9.8/asm-analysis-9.8.jar${classpath_separator}${library_directory}/org/ow2/asm/asm-tree/9.8/asm-tree-9.8.jar${classpath_separator}${library_directory}/org/ow2/asm/asm/9.8/asm-9.8.jar${classpath_separator}${library_directory}/net/minecraftforge/JarJarFileSystems/0.3.19/JarJarFileSystems-0.3.19.jar",
+            "--add-modules",
+            "ALL-MODULE-PATH"
         ]
     },
     "libraries": [
