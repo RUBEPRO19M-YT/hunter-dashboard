@@ -33,6 +33,9 @@ const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
 const REDIRECT_URI = process.env.DISCORD_REDIRECT_URI;
 const ADMIN_IDS = process.env.ADMIN_DISCORD_IDS ? process.env.ADMIN_DISCORD_IDS.split(',') : [];
 
+// Mapa temporal en memoria para conectar el launcher con el navegador
+const pendingLauncherAuths = new Map();
+
 app.get('/', async (req, res) => {
     const user = req.session.user;
     let aspirant = null;
@@ -43,9 +46,8 @@ app.get('/', async (req, res) => {
 });
 
 app.get('/auth/discord', (req, res) => {
-    // Si la petición viene del launcher, guardamos una bandera en la sesión
-    if (req.query.launcher === 'true') {
-        req.session.fromLauncher = true;
+    if (req.query.launcherSession) {
+        req.session.launcherSession = req.query.launcherSession;
     }
     res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=identify`);
 });
@@ -92,10 +94,17 @@ app.get('/auth/discord/callback', async (req, res) => {
             await aspirant.save();
         }
 
-        // Si venía del launcher, redirigimos al servidor local del launcher pasándole los datos
-        if (req.session.fromLauncher) {
-            req.session.fromLauncher = false;
-            return res.redirect(`http://localhost:3721/callback?discordId=${aspirant.discordId}&username=${aspirant.username}&number=${aspirant.number}&avatar=${aspirant.avatar}`);
+        // Si la autenticación viene del launcher, guardamos los datos para que el launcher los recoja
+        if (req.session.launcherSession) {
+            const sessionKey = req.session.launcherSession;
+            req.session.launcherSession = null;
+            pendingLauncherAuths.set(sessionKey, {
+                discordId: aspirant.discordId,
+                username: aspirant.username,
+                avatar: aspirant.avatar,
+                number: aspirant.number
+            });
+            return res.render('linked', { aspirant });
         }
 
         res.redirect('/');
@@ -103,6 +112,17 @@ app.get('/auth/discord/callback', async (req, res) => {
         console.error(err);
         res.redirect('/');
     }
+});
+
+// Endpoint para que el Launcher compruebe si el usuario ya completó el login
+app.get('/api/check-launcher-auth', (req, res) => {
+    const { sessionKey } = req.query;
+    if (sessionKey && pendingLauncherAuths.has(sessionKey)) {
+        const userData = pendingLauncherAuths.get(sessionKey);
+        pendingLauncherAuths.delete(sessionKey); // Se limpia tras recogerse
+        return res.json({ success: true, user: userData });
+    }
+    res.json({ success: false });
 });
 
 app.get('/admin', async (req, res) => {
@@ -126,37 +146,6 @@ app.post('/admin/update', async (req, res) => {
         }
     }
     res.redirect('/admin');
-});
-
-app.get('/api/verify/:discordId', async (req, res) => {
-    const aspirant = await Aspirant.findOne({ discordId: req.params.discordId });
-    if (!aspirant || aspirant.banned) {
-        return res.status(401).json({ allowed: false, message: 'No estás registrado o estás baneado.' });
-    }
-    res.json({ allowed: true, number: aspirant.number, username: aspirant.username });
-});
-
-app.get('/api/me', async (req, res) => {
-    if (!req.session.user) {
-        return res.json({ success: false, message: 'No hay sesión activa' });
-    }
-    try {
-        const aspirant = await Aspirant.findOne({ discordId: req.session.user.id });
-        if (!aspirant || aspirant.banned) {
-            return res.json({ success: false, message: 'Aspirante no registrado o baneado' });
-        }
-        res.json({
-            success: true,
-            user: {
-                discordId: aspirant.discordId,
-                username: aspirant.username,
-                avatar: aspirant.avatar,
-                number: aspirant.number
-            }
-        });
-    } catch (err) {
-        res.json({ success: false, message: 'Error interno en el servidor.' });
-    }
 });
 
 const PORT = process.env.PORT || 3000;
