@@ -125,6 +125,21 @@ app.get('/api/check-launcher-auth', (req, res) => {
     res.json({ success: false });
 });
 
+// ==========================================
+// RUTA AÑADIDA PARA VERIFICAR POR DISCORD ID
+// ==========================================
+app.get('/api/verify/:discordId', async (req, res) => {
+    try {
+        const aspirant = await Aspirant.findOne({ discordId: req.params.discordId });
+        if (!aspirant || aspirant.banned) {
+            return res.status(401).json({ allowed: false, message: 'No estás registrado o estás baneado.' });
+        }
+        res.json({ allowed: true, number: aspirant.number, username: aspirant.username });
+    } catch (err) {
+        res.status(500).json({ allowed: false, message: 'Error interno en el servidor.' });
+    }
+});
+
 app.get('/admin', async (req, res) => {
     const user = req.session.user;
     if (!user || !ADMIN_IDS.includes(user.id)) return res.status(403).send('Acceso denegado');
