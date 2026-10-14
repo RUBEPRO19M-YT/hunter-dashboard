@@ -10,12 +10,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'haunter_eventos_secret',
+    secret: process.env.SESSION_SECRET || 'hunter_eventos_secret',
     resave: false,
     saveUninitialized: false
 }));
 
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/haunter_eventos')
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/hunter_eventos')
     .then(() => console.log('Conectado a MongoDB'))
     .catch(err => console.error('Error conectando a MongoDB:', err));
 
@@ -43,6 +43,10 @@ app.get('/', async (req, res) => {
 });
 
 app.get('/auth/discord', (req, res) => {
+    // Si la petición viene del launcher, guardamos una bandera en la sesión
+    if (req.query.launcher === 'true') {
+        req.session.fromLauncher = true;
+    }
     res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=identify`);
 });
 
@@ -88,6 +92,12 @@ app.get('/auth/discord/callback', async (req, res) => {
             await aspirant.save();
         }
 
+        // Si venía del launcher, redirigimos al servidor local del launcher pasándole los datos
+        if (req.session.fromLauncher) {
+            req.session.fromLauncher = false;
+            return res.redirect(`http://localhost:3721/callback?discordId=${aspirant.discordId}&username=${aspirant.username}&number=${aspirant.number}&avatar=${aspirant.avatar}`);
+        }
+
         res.redirect('/');
     } catch (err) {
         console.error(err);
@@ -126,7 +136,6 @@ app.get('/api/verify/:discordId', async (req, res) => {
     res.json({ allowed: true, number: aspirant.number, username: aspirant.username });
 });
 
-// Endpoint para que el Launcher detecte la sesión activa del usuario logueado en la web
 app.get('/api/me', async (req, res) => {
     if (!req.session.user) {
         return res.json({ success: false, message: 'No hay sesión activa' });
@@ -151,4 +160,4 @@ app.get('/api/me', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Web Haunter Eventos corriendo en puerto ${PORT}`));
+app.listen(PORT, () => console.log(`Web Hunter Eventos corriendo en puerto ${PORT}`));
