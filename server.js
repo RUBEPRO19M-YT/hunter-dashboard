@@ -144,12 +144,13 @@ app.get('/api/verify/:discordId', async (req, res) => {
 app.get('/api/mods', (req, res) => {
     const baseUrl = `${req.protocol}://${req.get('host')}/public/mods`;
     res.json({
-        version: "1.0.1",
+        version: "1.0.2",
         mods: [
             { name: "simple-voice-chat-forge-1.20.1.jar", url: `${baseUrl}/simple-voice-chat-forge-1.20.1.jar` },
             { name: "create-1.20.1.jar", url: `${baseUrl}/create-1.20.1.jar` },
             { name: "epicfight-1.20.1.jar", url: `${baseUrl}/epicfight-1.20.1.jar` },
-            { name: "tablist-1.20.1.jar", url: `${baseUrl}/tablist-1.20.1.jar` }
+            { name: "tablist-1.20.1.jar", url: `${baseUrl}/tablist-1.20.1.jar` },
+            { name: "architectury-9.2.14-forge.jar", url: `${baseUrl}/architectury-9.2.14-forge.jar` }
         ]
     });
 });
