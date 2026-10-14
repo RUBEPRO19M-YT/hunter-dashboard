@@ -2,12 +2,16 @@ const express = require('express');
 const session = require('express-session');
 const mongoose = require('mongoose');
 const fetch = require('node-fetch');
+const path = require('path'); // <-- 1. Añadido path
 require('dotenv').config();
 
 const app = express();
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+// <-- 2. Hacer pública la carpeta 'public' para que el launcher descargue los mods
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 app.use(session({
     secret: process.env.SESSION_SECRET || 'hunter_eventos_secret',
@@ -16,7 +20,7 @@ app.use(session({
 }));
 
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/hunter_eventos')
-    .then(() => console.log('Conectado a MongoDB'))
+    .then(() => console.log('Conectado à MongoDB'))
     .catch(err => console.error('Error conectando a MongoDB:', err));
 
 const AspirantSchema = new mongoose.Schema({
@@ -33,7 +37,6 @@ const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
 const REDIRECT_URI = process.env.DISCORD_REDIRECT_URI;
 const ADMIN_IDS = process.env.ADMIN_DISCORD_IDS ? process.env.ADMIN_DISCORD_IDS.split(',') : [];
 
-// Mapa temporal en memoria para conectar el launcher con el navegador
 const pendingLauncherAuths = new Map();
 
 app.get('/', async (req, res) => {
@@ -94,7 +97,6 @@ app.get('/auth/discord/callback', async (req, res) => {
             await aspirant.save();
         }
 
-        // Si la autenticación viene del launcher, guardamos los datos para que el launcher los recoja
         if (req.session.launcherSession) {
             const sessionKey = req.session.launcherSession;
             req.session.launcherSession = null;
@@ -114,20 +116,16 @@ app.get('/auth/discord/callback', async (req, res) => {
     }
 });
 
-// Endpoint para que el Launcher compruebe si el usuario ya completó el login
 app.get('/api/check-launcher-auth', (req, res) => {
     const { sessionKey } = req.query;
     if (sessionKey && pendingLauncherAuths.has(sessionKey)) {
         const userData = pendingLauncherAuths.get(sessionKey);
-        pendingLauncherAuths.delete(sessionKey); // Se limpia tras recogerse
+        pendingLauncherAuths.delete(sessionKey);
         return res.json({ success: true, user: userData });
     }
     res.json({ success: false });
 });
 
-// ==========================================
-// RUTA AÑADIDA PARA VERIFICAR POR DISCORD ID
-// ==========================================
 app.get('/api/verify/:discordId', async (req, res) => {
     try {
         const aspirant = await Aspirant.findOne({ discordId: req.params.discordId });
@@ -138,6 +136,22 @@ app.get('/api/verify/:discordId', async (req, res) => {
     } catch (err) {
         res.status(500).json({ allowed: false, message: 'Error interno en el servidor.' });
     }
+});
+
+// ==========================================
+// 3. ENDPOINT PARA QUE EL LAUNCHER RECISE LOS MODS
+// ==========================================
+app.get('/api/mods', (req, res) => {
+    const baseUrl = `${req.protocol}://${req.get('host')}/public/mods`;
+    res.json({
+        version: "1.0.1",
+        mods: [
+            { name: "simple-voice-chat-forge-1.20.1.jar", url: `${baseUrl}/simple-voice-chat-forge-1.20.1.jar` },
+            { name: "create-1.20.1.jar", url: `${baseUrl}/create-1.20.1.jar` },
+            { name: "epicfight-1.20.1.jar", url: `${baseUrl}/epicfight-1.20.1.jar` },
+            { name: "tablist-1.20.1.jar", url: `${baseUrl}/tablist-1.20.1.jar` }
+        ]
+    });
 });
 
 app.get('/admin', async (req, res) => {
