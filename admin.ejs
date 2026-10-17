@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Admin — Hunter Event</title>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<style>
+  body { background: #0b0b10; color: #f3f3f3; font-family: 'Segoe UI', sans-serif; }
+</style>
+</head>
+<body class="min-h-screen px-6 py-8">
+
+  <div class="max-w-6xl mx-auto">
+    <div class="flex items-center justify-between mb-8">
+      <h1 class="text-2xl font-bold text-purple-400">Panel de Administración</h1>
+      <a href="/" class="text-sm text-white/60 hover:text-white">← Volver a la web</a>
+    </div>
+
+    <!-- ASPIRANTES -->
+    <div class="bg-white/5 border border-white/10 rounded-xl overflow-hidden mb-10">
+      <table class="w-full text-sm">
+        <thead class="bg-white/10 text-left">
+          <tr>
+            <th class="p-3">#</th>
+            <th class="p-3">Nombre</th>
+            <th class="p-3">Rango</th>
+            <th class="p-3">Estado</th>
+            <th class="p-3">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% aspirants.forEach(a => { %>
+            <tr class="border-t border-white/5">
+              <td class="p-3 text-purple-300">#<%= String(a.number).padStart(3, '0') %></td>
+              <td class="p-3"><%= a.username %></td>
+              <td class="p-3">
+                <form action="/admin/rank" method="POST" class="flex items-center gap-2">
+                  <input type="hidden" name="discordId" value="<%= a.discordId %>" />
+                  <select name="rank" class="bg-black/40 border border-white/20 rounded px-2 py-1">
+                    <% ['aspirante','verificado','hunter','admin'].forEach(r => { %>
+                      <option value="<%= r %>" <%= a.rank === r ? 'selected' : '' %>><%= r %></option>
+                    <% }) %>
+                  </select>
+                  <button class="text-xs bg-purple-600 hover:bg-purple-700 px-2 py-1 rounded">Guardar</button>
+                </form>
+              </td>
+              <td class="p-3">
+                <% if (a.banned) { %>
+                  <span class="text-red-400">Baneado (<%= a.banReason %>)</span>
+                <% } else { %>
+                  <span class="text-green-400">Activo</span>
+                <% } %>
+              </td>
+              <td class="p-3 space-y-2">
+                <form action="/admin/rename" method="POST" class="flex items-center gap-2">
+                  <input type="hidden" name="discordId" value="<%= a.discordId %>" />
+                  <input type="text" name="newUsername" placeholder="Nuevo nombre" maxlength="16"
+                         class="bg-black/40 border border-white/20 rounded px-2 py-1 w-32 text-xs" />
+                  <button class="text-xs bg-blue-600 hover:bg-blue-700 px-2 py-1 rounded">Renombrar</button>
+                </form>
+
+                <% if (a.banned) { %>
+                  <form action="/admin/unban" method="POST">
+                    <input type="hidden" name="discordId" value="<%= a.discordId %>" />
+                    <button class="text-xs bg-green-600 hover:bg-green-700 px-2 py-1 rounded">Desbanear</button>
+                  </form>
+                <% } else { %>
+                  <form action="/admin/ban" method="POST" class="flex items-center gap-2">
+                    <input type="hidden" name="discordId" value="<%= a.discordId %>" />
+                    <input type="text" name="reason" placeholder="Motivo" class="bg-black/40 border border-white/20 rounded px-2 py-1 w-24 text-xs" />
+                    <button class="text-xs bg-red-600 hover:bg-red-700 px-2 py-1 rounded">Banear</button>
+                  </form>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- NOMBRES PROHIBIDOS -->
+    <div class="bg-white/5 border border-white/10 rounded-xl p-6">
+      <h2 class="text-lg font-bold mb-4">Nombres prohibidos / reservados</h2>
+
+      <form action="/admin/banned-names/add" method="POST" class="flex items-center gap-2 mb-5">
+        <input type="text" name="name" placeholder="Nombre a bloquear" required
+               class="bg-black/40 border border-white/20 rounded px-3 py-1.5 text-sm" />
+        <input type="text" name="reason" placeholder="Motivo (opcional)"
+               class="bg-black/40 border border-white/20 rounded px-3 py-1.5 text-sm" />
+        <button class="text-sm bg-purple-600 hover:bg-purple-700 px-3 py-1.5 rounded">Añadir</button>
+      </form>
+
+      <ul class="space-y-1">
+        <% bannedNames.forEach(b => { %>
+          <li class="flex items-center justify-between text-sm bg-black/30 px-3 py-2 rounded">
+            <span><%= b.nameLower %> <span class="text-white/40">— <%= b.reason || 'sin motivo' %></span></span>
+            <form action="/admin/banned-names/remove" method="POST">
+              <input type="hidden" name="nameLower" value="<%= b.nameLower %>" />
+              <button class="text-xs text-red-400 hover:text-red-300">Quitar</button>
+            </form>
+          </li>
+        <% }) %>
+      </ul>
+    </div>
+  </div>
+
+</body>
+</html>

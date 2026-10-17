@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hunter Event</title>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<style>
+  body { background: #0b0b10; color: #f3f3f3; font-family: 'Segoe UI', sans-serif; }
+</style>
+</head>
+<body class="min-h-screen">
+
+  <nav class="flex items-center justify-between px-8 py-4 border-b border-white/10">
+    <span class="text-xl font-bold tracking-widest text-purple-400">HUNTER EVENT</span>
+    <% if (user) { %>
+      <div class="flex items-center gap-3">
+        <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png" class="w-8 h-8 rounded-full" />
+        <span class="text-sm"><%= user.username %></span>
+        <% if (isAdmin) { %>
+          <a href="/admin" class="text-sm bg-purple-600 hover:bg-purple-700 px-3 py-1.5 rounded-lg">Admin</a>
+        <% } %>
+      </div>
+    <% } else { %>
+      <a href="/auth/discord" class="bg-[#5865F2] hover:bg-[#4752c4] px-4 py-2 rounded-lg text-sm font-semibold">
+        Iniciar sesión con Discord
+      </a>
+    <% } %>
+  </nav>
+
+  <!-- HERO / INFO DEL EVENTO -->
+  <section class="max-w-4xl mx-auto px-6 py-16 text-center">
+    <h1 class="text-4xl md:text-5xl font-extrabold mb-4">
+      Hunter x Hunter <span class="text-purple-400">— Primer Arco</span>
+    </h1>
+    <p class="text-white/70 text-lg leading-relaxed mb-8">
+      Un evento de Minecraft ambientado en el primer arco de Hunter x Hunter.
+      Supera el examen, consigue tu licencia y hazte con objetos legendarios
+      como el skate de Killua o el pelo de Gon. Cada aspirante recibe un
+      número único, igual que en el propio examen Hunter.
+    </p>
+
+    <% if (!user) { %>
+      <a href="/auth/discord" class="inline-block bg-[#5865F2] hover:bg-[#4752c4] px-6 py-3 rounded-xl font-semibold">
+        Regístrate con Discord para unirte
+      </a>
+    <% } %>
+  </section>
+
+  <!-- INFO ADICIONAL -->
+  <section class="max-w-5xl mx-auto px-6 pb-16 grid md:grid-cols-3 gap-6">
+    <div class="bg-white/5 rounded-xl p-6 border border-white/10">
+      <h3 class="font-bold text-purple-300 mb-2">Modpack</h3>
+      <p class="text-sm text-white/60">Minecraft 1.20.1 · Forge 47.4.10. El launcher instala y actualiza todo automáticamente.</p>
+    </div>
+    <div class="bg-white/5 rounded-xl p-6 border border-white/10">
+      <h3 class="font-bold text-purple-300 mb-2">Tu número</h3>
+      <p class="text-sm text-white/60">Al registrarte recibes un número de aspirante permanente, visible en el juego.</p>
+    </div>
+    <div class="bg-white/5 rounded-xl p-6 border border-white/10">
+      <h3 class="font-bold text-purple-300 mb-2">Objetos únicos</h3>
+      <p class="text-sm text-white/60">Objetos míticos inspirados en los personajes del arco, con habilidades propias.</p>
+    </div>
+  </section>
+
+  <!-- DASHBOARD POST-LOGIN -->
+  <% if (user && aspirant) { %>
+    <section class="max-w-3xl mx-auto px-6 pb-20">
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-6">
+        <h2 class="text-xl font-bold mb-4">Tu perfil de aspirante</h2>
+
+        <div class="flex items-center gap-4 mb-6">
+          <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png" class="w-14 h-14 rounded-full" />
+          <div>
+            <p class="font-semibold"><%= aspirant.username %></p>
+            <p class="text-purple-300 text-sm">Aspirante #<%= String(aspirant.number).padStart(3, '0') %> · <%= aspirant.rank %></p>
+          </div>
+        </div>
+
+        <!-- Subida de skin -->
+        <div class="border-t border-white/10 pt-5">
+          <h3 class="font-semibold mb-2">Tu skin</h3>
+          <% if (aspirant.skinFilename) { %>
+            <img src="/public/skins/<%= aspirant.skinFilename %>" class="w-16 h-16 mb-3 pixelated border border-white/20 rounded" style="image-rendering: pixelated;" />
+          <% } %>
+          <form id="skinForm" class="flex items-center gap-3">
+            <input type="file" name="skin" id="skinInput" accept="image/png" class="text-sm" required />
+            <button type="submit" class="bg-purple-600 hover:bg-purple-700 px-4 py-1.5 rounded-lg text-sm font-semibold">
+              Subir skin (PNG)
+            </button>
+          </form>
+          <p id="skinStatus" class="text-xs text-white/50 mt-2"></p>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      document.getElementById('skinForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const input = document.getElementById('skinInput');
+        const status = document.getElementById('skinStatus');
+        if (!input.files[0]) return;
+
+        const formData = new FormData();
+        formData.append('skin', input.files[0]);
+
+        status.textContent = 'Subiendo...';
+        try {
+          const res = await fetch('/api/skin/upload', { method: 'POST', body: formData });
+          const data = await res.json();
+          if (data.ok) {
+            status.textContent = 'Skin actualizada. Recarga la página para verla.';
+          } else {
+            status.textContent = data.message || 'Error al subir la skin.';
+          }
+        } catch (err) {
+          status.textContent = 'Error de conexión.';
+        }
+      });
+    </script>
+  <% } %>
+
+</body>
+</html>
